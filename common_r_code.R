@@ -103,6 +103,8 @@ DT <- DT[, !vec_of_vars_to_del, with=FALSE]
 #using grep
 DT <- DT(DT, select = grep("prefix1_|prefix_2|prefix_3", names(DT))) #to keep
 DT <- DT(DT, select = -grep("prefix1_|prefix_2|prefix_3", names(DT))) #to drop
+#lapply using grep to only do it on the column names
+DT[, (grep("XYZ",names(DT),value=T)) := lapply(.SD, as.numeric), .SDcols=grep("XYZ",names(DT),value=T)]
 ##remove all columns with a specific letter ("y", for example)
 #the "invert=T" removes them.
 dt[, grep("y$", colnames(dt), invert=T, value=T, invert=T), with=F]
