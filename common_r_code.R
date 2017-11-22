@@ -71,7 +71,7 @@ dt <- dt[, newvar := var1/var2]
 #drop completely empty rows
 DT <- DT[!which(rowMeans(is.na(DT)) >= ((ncol(DT)-2) / ncol(DT))), ]
 
-#drop rows that are NA for a particular column
+drop rows that are NA for a particular column
 #DT <- DT[!which(is.na(DT[, var1]))]
 db <- na.omit(db, cols="var1")
 
