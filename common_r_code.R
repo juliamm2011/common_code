@@ -68,12 +68,18 @@ hrs[hatota>0, hwealthlog := hatota]
 #divide one column by another
 dt <- dt[, newvar := var1/var2] 
 
+#ifelse statement in creating a new var
+dt[, newvar := ifelse(othervar=="EXAMPLE", 1, 0)]
+
 #drop completely empty rows
 DT <- DT[!which(rowMeans(is.na(DT)) >= ((ncol(DT)-2) / ncol(DT))), ]
 
-drop rows that are NA for a particular column
+#drop rows that are NA for a particular column
 #DT <- DT[!which(is.na(DT[, var1]))]
 db <- na.omit(db, cols="var1")
+
+#pads numbers - add 0 before number
+dt[, monthvar := str_pad(dt[,monthvar], 2, pad = "0")]
 
 #weighted means
 DT <- DT[, list(var1 = weighted.mean(var1, weight_var)), by=id.varnames]
@@ -89,6 +95,7 @@ DT <- DT[, var1 := round(var1, 1)]
 dt <- dt[var1 == "JFK" & var1 == 6]
 dt <- dt[var1 != 1990]
 dt <- dt[!which(dt[, var1 >= 3])]
+dt <- dt[!(var1==12&var2==2017)]
 
 ##only keep specific columns
 #with quotes
@@ -102,12 +109,14 @@ DT <- DT[, vec_of_vars_to_keep, with=FALSE]
 DT <- DT[, !vec_of_vars_to_del, with=FALSE]
 #using grep
 DT <- DT(DT, select = grep("prefix1_|prefix_2|prefix_3", names(DT))) #to keep
+DT <- DT[, c("var1","var2",grep("prefix", names(DT), value=T)), with=F] #to keep
 DT <- DT(DT, select = -grep("prefix1_|prefix_2|prefix_3", names(DT))) #to drop
 #lapply using grep to only do it on the column names
 DT[, (grep("XYZ",names(DT),value=T)) := lapply(.SD, as.numeric), .SDcols=grep("XYZ",names(DT),value=T)]
 ##remove all columns with a specific letter ("y", for example)
 #the "invert=T" removes them.
 dt[, grep("y$", colnames(dt), invert=T, value=T, invert=T), with=F]
+
 
 
 ##frequency table
@@ -243,6 +252,9 @@ draws.required <- 25 #nice to set it up this way, so you only need to change onc
 id.varnames <- c("id_var1", "id_var2", "id_var3", "id_var4")
 draw.colnames <- paste0("draw_", 0:(draws.required-1))
 DT[, (draw.colnames) := lapply(.SD, function(x) sum(x)), .SDcols=draw.colnames, by=c(id.varnames[1:2])]
+DT[, (colnames(DT)[2:5]) := lapply(.SD, function(x) round(x,2)), .SDcols=colnames(DT)[2:5]]
+DT[, (c("var1","var1")) := lapply(.SD, function(x) round(x,2)), .SDcols=c("var1","var2")]
+
 
 #reshape from wide to long
 DT <- melt(DT, id="svyyear")
@@ -702,4 +714,8 @@ aggregate_db <- db %>%
   arrange(1-full_time) %>%
   mutate(full_time2 = full_time %>% cumsum)
 
+
+#relative weights analysis -- library(flipRegression)
+Regression(yvar ~ xvar1 + xvar2 + xvar3, data=datasetname,
+           output = "Relative Importance Analysis")
 
