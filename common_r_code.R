@@ -719,3 +719,8 @@ aggregate_db <- db %>%
 Regression(yvar ~ xvar1 + xvar2 + xvar3, data=datasetname,
            output = "Relative Importance Analysis")
 
+#residual plot
+lm1 <- lm(yvar ~ xvar, data=DT)
+lm1res <- resid(lm1)
+plot(DT[,xvar],lm1res)
+
