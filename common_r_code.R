@@ -21,6 +21,7 @@ library(plm)
 library(tableone)
 library(ReporteRs)
 library(magrittr)
+library(patchwork)
 set.seed(98109)
 # load packages
 list.of.packages <- c("pacman")
@@ -213,6 +214,9 @@ plot2 <- ggplot() +
   ggtitle(tlabel)
 print(plot2)
 
+#rotate x-axis labels
+theme(axis.text.x = element_text(face = "bold", size = 12, angle = 90, hjust = 1)) 
+
 ##loops
 #set state 
 fips <- factor(DT[, fips])
@@ -255,7 +259,7 @@ DT[, (draw.colnames) := lapply(.SD, function(x) sum(x)), .SDcols=draw.colnames, 
 DT[, (colnames(DT)[2:5]) := lapply(.SD, function(x) round(x,2)), .SDcols=colnames(DT)[2:5]]
 DT[, (c("var1","var1")) := lapply(.SD, function(x) round(x,2)), .SDcols=c("var1","var2")]
 
-
+#library(reshape)
 #reshape from wide to long
 DT <- melt(DT, id="svyyear")
 DT <- melt(DT, 
@@ -268,6 +272,17 @@ DT <- melt(DT,
 ##"variable" is the factor variable we want to be separate columns. "value" is the variable name that contains the values we want to swing.
 DT <- dcast.data.table(DT, id_var1 + id_var2 + id_var3 ~ variable, value.var="value")
 DT <- dcast.data.table(DT, id_var1 + id_var2 + id_var3 ~ variable, value.var=c("value1", "value2"))
+
+#library(tidyr)
+#reshape from wide to long
+#Note we used bare variable names to specify the names of the key and value columns
+#variable.name = key; value.names = value
+DT <- gather(DT, key, value, -id1, -id2)
+#reshape from wide to long
+##"variable" is the factor variable we want to be separate columns. "valuevar" is the variable name that contains the values we want to swing.
+DT <- spread(DT, variable, valuevar) 
+
+
 
 #turn NA's to 0
 #whole data.table
@@ -724,3 +739,12 @@ lm1 <- lm(yvar ~ xvar, data=DT)
 lm1res <- resid(lm1)
 plot(DT[,xvar],lm1res)
 
+#patchwork plots; library(patchwork)
+#any arrangement
+p1 + p2
+#space between plots
+p1 + plot_spacer() + p2
+#2 plots horizontally next to each other, 1 wide plot below them
+p1 + p2 - p3
+#3 plots horizontally next to each other, 1 wide plot below them
+(p1 | p2 | p3) / p4
