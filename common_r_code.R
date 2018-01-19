@@ -284,7 +284,7 @@ DT <- spread(DT, variable, valuevar)
 
 
 
-#turn NA's to 0
+#turn NA's to 0 (zero)
 #whole data.table
 dt[is.na(dt)] <- 0
 #specific variable
@@ -379,6 +379,9 @@ library(Hmisc)
 rcorr(x, type="pearson")
 #correlations without p-values
 cor(x, y)
+#partial correlation
+#library(ppcor)
+pcor.test(dt[,var1],dt[,var2],dt[,confoundvar],method="pearson")
 
 ###correlation matrices
 #library(PerformanceAnalytics)
@@ -644,6 +647,13 @@ for (i in seq_along(vecofmeans)){
   output[,i] <- rnorm(k,mean=vecofmeans[[i]])
 }
 
+#loop through to create multiple new variables (e.g., top box scores)
+tbcols <- grep("TOTAL_TB",colnames(cc),value=T)
+trcols <- grep("TOTAL_RSPNS",colnames(cc),value=T)
+for (i in c(1:7)){
+  cc[, paste0("tbscore_q2_",i)] <- cc[, tbcols[[i]], with=F] / cc[, trcols[[i]], with=F]
+}
+
 #for loop to figure out how many coin flips you'll need to get 3 heads
 flip <- function() sample(c("T","H"),1)
 
@@ -729,6 +739,12 @@ aggregate_db <- db %>%
   arrange(1-full_time) %>%
   mutate(full_time2 = full_time %>% cumsum)
 
+#proportion in group
+db %>%
+  group_by(var1, var1) %>%
+  summarise (n = n()) %>%
+  mutate(freq = n / sum(n))
+
 
 #relative weights analysis -- library(flipRegression)
 Regression(yvar ~ xvar1 + xvar2 + xvar3, data=datasetname,
@@ -748,3 +764,10 @@ p1 + plot_spacer() + p2
 p1 + p2 - p3
 #3 plots horizontally next to each other, 1 wide plot below them
 (p1 | p2 | p3) / p4
+
+#convert timestamp to numeric; library(chron)
+dt[, timestamp := as.numeric(chron(times = timestamp))*24]
+
+#quartile or ntile
+dt <- dt %>% mutate(tertile = ntile(valuevariable, 3))
+dt <- dt %>% mutate(quartile = ntile(valuevariable, 4))
