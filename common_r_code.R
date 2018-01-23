@@ -771,3 +771,19 @@ dt[, timestamp := as.numeric(chron(times = timestamp))*24]
 #quartile or ntile
 dt <- dt %>% mutate(tertile = ntile(valuevariable, 3))
 dt <- dt %>% mutate(quartile = ntile(valuevariable, 4))
+
+
+#CALCULATE MODE FUNCTION
+#set up functions
+calculate_mode <- function(x) {
+  uniqx <- unique(x)
+  uniqx[which.max(tabulate(match(x, uniqx)))]
+}
+
+#GRABS COLUMN NAME OF COLUMN WITH MAX VALUE
+dt[, new_var := colnames(.SD)[max.col(.SD, ties.method="first")], .SDcols = c("var1","var2","var3","var4","var5")]
+
+
+
+
+
