@@ -745,6 +745,9 @@ db %>%
   summarise (n = n()) %>%
   mutate(freq = n / sum(n))
 
+#freq table
+ce %>% transmute(vis_bin, percent = USER_COUNT/sum(USER_COUNT))
+
 
 #relative weights analysis -- library(flipRegression)
 Regression(yvar ~ xvar1 + xvar2 + xvar3, data=datasetname,
@@ -787,3 +790,19 @@ dt[, new_var := colnames(.SD)[max.col(.SD, ties.method="first")], .SDcols = c("v
 
 
 
+
+#rolling 2 months cc (topline)
+str2m <- fread("O:/CoOp/CoOp194_PROReportng&OM/Julie/CC_r2m.csv")
+#calculate rolling two by day part
+str2m[, lag_TB :=lapply(.SD, function(x) c(NA, x[-.N])), .SDcols="TOTAL_TB"]
+str2m[, lag_RSPNS :=lapply(.SD, function(x) c(NA, x[-.N])), .SDcols="TOTAL_RSPNS"]
+#sum together
+str2m[, R2MTB := rowSums(.SD, na.rm = TRUE), .SDcols=c("TOTAL_TB","lag_TB")]
+str2m[, R2MRSPNS := rowSums(.SD, na.rm = TRUE), .SDcols=c("TOTAL_RSPNS","lag_RSPNS")]
+#drop earliest month
+str2m <- str2m[(FSCL_YR_NUM==2017&FSCL_PER_IN_YR_NUM>=3)|(FSCL_YR_NUM==2018&FSCL_PER_IN_YR_NUM<=3)]
+str2m[, R2MCC := round(R2MTB/R2MRSPNS,3)]
+#make month year var
+str2m[, FPFY := paste0(FSCL_YR_NUM,".",FSCL_PER_IN_YR_NUM)]
+str2m[, FPFY := as.numeric(FPFY)]
+str2m[, FPFYlabel := paste0(FSCL_YR_NUM,"-",FSCL_PER_IN_YR_NUM)]
