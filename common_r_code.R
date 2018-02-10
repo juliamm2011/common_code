@@ -787,15 +787,19 @@ calculate_mode <- function(x) {
 dt[, new_var := colnames(.SD)[max.col(.SD, ties.method="first")], .SDcols = c("var1","var2","var3","var4","var5")]
 
 
-
+#break GUIDs into 10 samples
+randum <- runif(nrow(mcomp),0,1)
+mcomp <- cbind(mcomp,randum)
+mcomp <- mcomp %>% mutate(sample = ntile(randum, 10))
+setDT(mcomp)
 
 
 
 #rolling 2 months cc (topline)
 str2m <- fread("O:/CoOp/CoOp194_PROReportng&OM/Julie/CC_r2m.csv")
 #calculate rolling two by day part
-str2m[, lag_TB :=lapply(.SD, function(x) c(NA, x[-.N])), .SDcols="TOTAL_TB"]
-str2m[, lag_RSPNS :=lapply(.SD, function(x) c(NA, x[-.N])), .SDcols="TOTAL_RSPNS"]
+str2m[, lag_TB :=lapply(.SD, function(x) c(NA, x[-.N])), by="STORE_NUM", .SDcols="TOTAL_TB"]
+str2m[, lag_RSPNS :=lapply(.SD, function(x) c(NA, x[-.N])), by="STORE_NUM", .SDcols="TOTAL_RSPNS"]
 #sum together
 str2m[, R2MTB := rowSums(.SD, na.rm = TRUE), .SDcols=c("TOTAL_TB","lag_TB")]
 str2m[, R2MRSPNS := rowSums(.SD, na.rm = TRUE), .SDcols=c("TOTAL_RSPNS","lag_RSPNS")]
