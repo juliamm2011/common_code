@@ -788,11 +788,11 @@ dt[, new_var := colnames(.SD)[max.col(.SD, ties.method="first")], .SDcols = c("v
 
 
 #break GUIDs into 10 samples
+#random number between 0 and 1
 randum <- runif(nrow(mcomp),0,1)
 mcomp <- cbind(mcomp,randum)
 mcomp <- mcomp %>% mutate(sample = ntile(randum, 10))
 setDT(mcomp)
-
 
 
 #rolling 2 months cc (topline)
