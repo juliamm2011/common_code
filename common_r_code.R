@@ -214,6 +214,45 @@ plot2 <- ggplot() +
   ggtitle(tlabel)
 print(plot2)
 
+
+##line chart, factored by two variables. with vertical lines.
+#set labels
+xlabels1a <- c("FW 14","FW 15","FW 16","FW 17","FW 18","FW 19","FW 20","FW 21")
+xlabel1a <- c("Fiscal Week")
+ylabel1a <- "TB Score"
+tlabel1a <- "Deployment Play Utilization on Customer Experience"
+sublabel1a <- "Customer Connection and Store Operations"
+caption1a <- "Deployment Activities Timeline sent to SMs:\nFW17 - Understand the change for yourself and your team\nFW18 - Prepare to lead the change for your team\nFW20 - Lead the change for your team"
+# caption1a <- "U.S. Company Operated Stores"
+#manual legend labels
+lname11a <- "Fiscal Year"
+llabels11a <- c("2017","2018")
+lname21a <- "Deployment Play Utilization"
+llabels21a <- c("Not utilized","Utilized")
+#values
+pdata1a <- dp
+px1a <- dp[,FSCL_WK_IN_YR_NUM]
+py1a <- dp[,cc_sc]
+py1b <- dp[,so_sc]
+groupvar1a <- dp[,useploy]
+colourvar1a <- dp[,FSCL_YR_NUM]
+#plot itself
+plot1a <- ggplot(data=pdata1a, aes(x=px1a, y=py1a, colour=factor(colourvar1a), linetype=factor(groupvar1a), group=interaction(groupvar1a, colourvar1a))) + 
+  geom_line(size=1) + annotate(geom = "text", x=14, y=70, hjust=0, label = "Store Operations") +
+  geom_line(y=py1b,size=1) + annotate(geom = "text", x=14, y=40, hjust=0, label = "Customer Connection") +
+  geom_vline(aes(xintercept = 17)) + annotate(geom = "text", x=17, y=3, hjust=0, vjust=-0.5, label = "Understand", angle=90, size=3, fontface = "italic") +
+  geom_vline(aes(xintercept = 18)) + annotate(geom = "text", x=18, y=3, hjust=0, vjust=-0.5, label = "Prepare", angle=90, size=3, fontface = "italic") +
+  geom_vline(aes(xintercept = 20)) + annotate(geom = "text", x=20, y=3, hjust=0, vjust=-0.5, label = "Lead", angle=90, size=3, fontface = "italic") +
+  xlab(xlabel1a) + ylab(ylabel1a) + 
+  scale_colour_discrete(name=lname11a, labels=llabels11a, guide=guide_legend(order=1)) +
+  guides(colour = guide_legend(override.aes = list(size = 7))) + 
+  scale_linetype_discrete(name=lname21a, labels=llabels21a, guide=guide_legend(order=1)) +
+  scale_x_continuous(breaks=14:21) +
+  scale_y_continuous(limits=c(0,70)) + theme_economist() +
+  ggtitle(tlabel1a) + labs(subtitle=sublabel1a,caption=caption1a)
+print(plot1a)
+
+
 #rotate x-axis labels
 theme(axis.text.x = element_text(face = "bold", size = 12, angle = 90, hjust = 1)) 
 
