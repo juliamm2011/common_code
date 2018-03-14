@@ -386,6 +386,14 @@ models <- lapply(split(DF, DF$unitid), 'lm', formula = dep_var ~ svyyear)
 pred <- mapply('predict', models, split(newData, newData$unitid))
 pred <- as.data.frame(pred)
 
+#run models split by region and calculated predicted values
+#library(nlme)
+newData <- cedt[, .(STORE_NUM,RGN_ORG_LVL_DESCR,hspct,tsd)]
+ll = lmList(CC_TB_SCORE ~ hspct + tsd | RGN_ORG_LVL_DESCR, data=cedt)
+predict(ll, newData)
+newData[["value"]] <- predict(ll, newData)
+setnames(newData,"value","predCCscore")
+
 ##three-year averages
 #make vector of even-numbered and odd-numbered years (even = years with missingness)
 year_vec_even <- seq(2002, 2014, 2)
