@@ -861,8 +861,6 @@ str2m[, FPFY := paste0(FSCL_YR_NUM,".",FSCL_PER_IN_YR_NUM)]
 str2m[, FPFY := as.numeric(FPFY)]
 str2m[, FPFYlabel := paste0(FSCL_YR_NUM,"-",FSCL_PER_IN_YR_NUM)]
 
-
-
 ##line chart split by two variables, with a geom_text line height variable
 
 #make year-month variable for plotting
