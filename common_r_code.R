@@ -324,7 +324,8 @@ DT <- gather(DT, key, value, -id1, -id2)
 ##"variable" is the factor variable we want to be separate columns. "valuevar" is the variable name that contains the values we want to swing.
 DT <- spread(DT, variable, valuevar) 
 
-
+#remove blank spaces in a factor variable
+DT[, PartnerID := factor(sub(" +$", "", PartnerID))]
 
 #turn NA's to 0 (zero)
 #whole data.table
@@ -798,7 +799,6 @@ db %>%
 #freq table
 ce %>% transmute(vis_bin, percent = USER_COUNT/sum(USER_COUNT))
 
-
 #relative weights analysis -- library(flipRegression)
 Regression(yvar ~ xvar1 + xvar2 + xvar3, data=datasetname,
            output = "Relative Importance Analysis")
@@ -904,3 +904,44 @@ plot2 <- ggplot(data=pdata, aes(x=px, y=py, colour=factor(colourvar), group=inte
   geom_text(size = 4, aes(label=py,y=value_y), stat="identity")
 print(plot2)
 
+
+
+
+#calculate tenure; library(lubridate)
+pt[, hiredt := as_date(ymd_hms(MOST_RECENT_HIRE_DT))]
+pt[, today := as_date(Sys.Date())]
+pt[, tenure := today-hiredt]
+pt[, tenure_yrs := as.numeric(tenure, units="days")]
+pt[, tenure_yrs := round(tenure_yrs/365.25,2)]
+
+
+
+
+#make a matrix for plotting
+dpmat <- as.data.table(cbind(c(0,1,2,3,4,5),c(31.4,40.8,33.2,29.5,27.7,30.0)))
+setDT(dpmat)
+setnames(dpmat,c("day_part","cc_score"))
+dpmat[, allday := 0]
+dpmat[day_part==0, allday := 1]
+
+#bar chart; remove legend
+#set labels
+xlabels <- c("All Day", "Early AM", "AM", "Midday", "PM", "Late PM")
+ylabel <- "TB Score"
+tlabel <- "Customer Connection by Day Part"
+sublabel <- "US Company-Operated Stores, Q1 FY18"
+caption <- "Early AM = Pre-7am, AM = 7-11am, Midday = 11am-2pm, PM = 2-5pm, Late PM = 5pm-Close"
+#values
+pdata1a <- dpmat
+px1a <- dpmat[,day_part]
+py1a <- dpmat[,cc_score]
+groupvar1a <- dpmat[,allday]
+#plot itself
+plot1a <- ggplot(data=pdata1a,aes(y=py1a,x=as.factor(px1a),fill=as.factor(groupvar1a))) + 
+  geom_bar(stat="identity", width = 0.95, position=position_dodge(), colour="black") +
+  scale_fill_brewer(palette = 2) + guides(fill=F) +
+  theme_economist() +
+  scale_x_discrete(name="",labels=xlabels) +
+  xlab("") + ylab(ylabel) + ggtitle(tlabel) + labs(subtitle=sublabel,caption=caption) +
+  geom_text(size = 3.5, aes(label=py1a,y=0), stat="identity", vjust = -1, position = position_dodge(0.95)) 
+print(plot1a)
