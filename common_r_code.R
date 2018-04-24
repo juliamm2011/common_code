@@ -428,6 +428,7 @@ DT_full <- DT_full[!which(rowMeans(is.na(DT_full)) >= ((ncol(DT_full)-2) / ncol(
 #correlations with p-values
 library(Hmisc)
 rcorr(x, type="pearson")
+cor.test(dt[,var1],dt[,var2])
 #correlations without p-values
 cor(x, y)
 #partial correlation
@@ -945,3 +946,6 @@ plot1a <- ggplot(data=pdata1a,aes(y=py1a,x=as.factor(px1a),fill=as.factor(groupv
   xlab("") + ylab(ylabel) + ggtitle(tlabel) + labs(subtitle=sublabel,caption=caption) +
   geom_text(size = 3.5, aes(label=py1a,y=0), stat="identity", vjust = -1, position = position_dodge(0.95)) 
 print(plot1a)
+
+#overlap between two vectors
+length(intersect(vec1,vec2))
