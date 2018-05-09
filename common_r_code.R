@@ -136,6 +136,9 @@ typeof(DT[,var1])
 #two-way table
 with(DT, table(var1, var2))
 
+#create row numbers
+DT[, ID := .I]
+
 #mapvalues
 #example: create a variable of state names ("new_var") by matching fipcodes (variable = "var_to_match", vector of 51 unique codes = "old_vec_of_values)
 ##to a vector of 51 state names ("new_vec_of_values")
@@ -326,6 +329,8 @@ DT <- spread(DT, variable, valuevar)
 
 #remove blank spaces in a factor variable
 DT[, PartnerID := factor(sub(" +$", "", PartnerID))]
+#remove / delete a specific letter in a variable
+DT[, COMBINED_AGE := factor(sub("E", "", COMBINED_AGE))]
 
 #turn NA's to 0 (zero)
 #whole data.table
