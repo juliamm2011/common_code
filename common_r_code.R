@@ -111,7 +111,6 @@ DT <- DT[, !c("columns", "to", "delete"), with=FALSE]
 #from vector
 DT <- DT[, vec_of_vars_to_keep, with=FALSE]
 DT <- DT[, !vec_of_vars_to_del, with=FALSE]
-#using grep
 DT <- DT(DT, select = grep("prefix1_|prefix_2|prefix_3", names(DT))) #to keep
 DT <- DT[, c("var1","var2",grep("prefix", names(DT), value=T)), with=F] #to keep
 DT <- DT(DT, select = -grep("prefix1_|prefix_2|prefix_3", names(DT))) #to drop
@@ -122,6 +121,9 @@ DT[, (grep("XYZ",names(DT),value=T)) := lapply(.SD, as.numeric), .SDcols=grep("X
 dt[, grep("y$", colnames(dt), invert=T, value=T, invert=T), with=F]
 
 
+#write lm output (summary) to .csv
+library(broom)
+write.csv(tidy(lmname), paste0(data_dir,"/coefs.csv"))
 
 ##frequency table
 dt[, .N, by = var1]
@@ -831,6 +833,9 @@ dt[, timestamp := as.numeric(chron(times = timestamp))*24]
 dt <- dt %>% mutate(tertile = ntile(valuevariable, 3))
 dt <- dt %>% mutate(quartile = ntile(valuevariable, 4))
 
+#trim top and bottom 2.5%
+dt <- dt %>% filter(var1 < quantile(dt$var1, 0.975))
+dt <- dt %>% filter(var1 > quantile(dt$var1, 0.025))
 
 #CALCULATE MODE FUNCTION
 #set up functions
