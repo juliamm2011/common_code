@@ -959,3 +959,10 @@ print(plot1a)
 
 #overlap between two vectors
 length(intersect(vec1,vec2))
+
+#t-test function (returns p-values)
+tfunc <- function(x1,x2,sd,df){
+  t <- (x1-x2)/sqrt((sd^2)/df)
+  p <- 2*pt(-abs(t),df)
+  return(p)
+}
